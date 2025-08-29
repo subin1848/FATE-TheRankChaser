@@ -20,6 +20,7 @@ namespace RankChaser
         {
             this.form1 = form;
             InitializeComponent();
+            UpdateHistory();
         }
 
 
@@ -45,6 +46,18 @@ namespace RankChaser
                 MessageBox.Show($"알 수 없는 오류가 발생했습니다. \n{ex.Message}", "알 수 없는 오류!",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            UpdateHistory();
+        }
+
+        private void UpdateHistory()
+        {
+            LoadHistory();
+            lbHistory.Items.Clear();
+            lbHistory.Items.AddRange(history.ToArray());
         }
     }
 }
