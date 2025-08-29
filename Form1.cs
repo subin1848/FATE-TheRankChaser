@@ -92,5 +92,53 @@ namespace RankChaser
             public string Icons { get; set; }
         }
 
+        // 종료 메뉴 클릭 이벤트
+        private void 긑ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("정말 종료하시겠습니까? 🥺", "종료 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+        }
+
+        // 정보 메뉴 클릭 이벤트
+        private void rankChaserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormAbout form = new FormAbout();
+            form.ShowDialog();
+        }
+
+        // 내역 불러오기 메뉴 클릭 이벤트
+        private void 내역불러오기ToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            FormHistory form = Application.OpenForms["FormHistory"] as FormHistory;
+            if (form != null)
+            {
+                form.Activate();
+            }
+            else
+            {
+                form = new FormHistory(this);
+                form.Show();
+            }
+        }
+        // 내역 불러오기 메서드
+        internal void LoadHistory(string history)
+        {
+            if (string.IsNullOrWhiteSpace(history))
+                return;
+
+            var parts = history.Split('|');
+            if (parts.Length < 3)
+                return; // 형식이 잘못되었으면 그냥 리턴
+
+            var datetimePart = parts[0].Split(' ');
+            string birthday = datetimePart.Length > 0 ? datetimePart[0] : "";
+            string birthtime = datetimePart.Length > 1 ? datetimePart[1] : "";
+            string saju = parts[1];
+            string message = parts[2];
+
+        }
+
     }
 }
