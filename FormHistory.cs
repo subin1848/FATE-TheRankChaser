@@ -23,7 +23,7 @@ namespace RankChaser
             UpdateHistory();
         }
 
-
+        // 내역 불러오기 메서드
         private void LoadHistory()
         {
             try
@@ -47,17 +47,25 @@ namespace RankChaser
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        // 새로고침 버튼 클릭 이벤트 핸들러
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             UpdateHistory();
         }
 
+        // 내역 삭제 버튼 클릭 이벤트 핸들러
         private void UpdateHistory()
         {
             LoadHistory();
             lbHistory.Items.Clear();
             lbHistory.Items.AddRange(history.ToArray());
+        }
+
+        // 내역 삭제 버튼 클릭 이벤트 핸들러
+        private void lbHistory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string message = history[lbHistory.SelectedIndex];
+            form1.LoadHistory(message);
         }
     }
 }
