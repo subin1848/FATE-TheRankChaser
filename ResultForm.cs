@@ -85,6 +85,72 @@ namespace RankChaser
                 $"약점: {selected.Weakness}\r\n" +
                 $"데뷔 확률: {selected.DebutRate}";
 
+            FillProbabilityListBox(selected);
+            ShowFinalRank(selected);
+        }
+
+        // 데뷔 확률 ListBox 채우기
+        private void FillProbabilityListBox(StrategyData selected)
+        {
+            var boxes = new List<ListBox> { lbDedut, lbFullEdit, lbBadEdit };
+            foreach (var box in boxes)
+            {
+                box.Items.Clear();
+            }
+
+            // DebutRate만 CSV에서 가져오기
+            int debut = 0;
+            int.TryParse(selected.DebutRate.Replace("%", ""), out debut);
+
+            // 통편집과 악편은 랜덤으로 계산
+            Random rand = new Random();
+            int pass = rand.Next(0, 101 - debut);  // 데뷔 확률 합쳐서 최대 100
+            int bad = 100 - debut - pass;
+
+            // ListBox에 아이템 반복 추가 (예: ▓)
+            for (int i = 0; i < debut; i++) lbDedut.Items.Add("데뷔 ▓");
+            for (int i = 0; i < pass; i++) lbFullEdit.Items.Add("통편집 ▓");
+            for (int i = 0; i < bad; i++) lbBadEdit.Items.Add("악편 ▓");
+
+            lblDedutRate.Text = $"{debut}%";
+            lblFullEditRate.Text = $"{pass}%";
+            lblBadEditRate.Text = $"{bad}%";
+
+        }
+        // 최종 순위 계산 및 표시
+        private void ShowFinalRank(StrategyData selected)
+        {
+            // DebutRate를 숫자로 변환
+            int debutRate = 0;
+            int.TryParse(selected.DebutRate.Replace("%", ""), out debutRate);
+
+            Random rand = new Random();
+
+            // 순위를 DebutRate 기반으로 계산 (높을수록 순위 높음)
+            // 1위 ~ 100위 범위를 반대로 매핑 (100% -> 1위, 0% -> 100위)
+            int baseRank = 100 - debutRate;
+
+            // 약간의 랜덤 오차를 줌 (±10위)
+            int minRank = Math.Max(1, baseRank - 10);
+            int maxRank = Math.Min(100, baseRank + 10);
+
+            int finalRank = rand.Next(minRank, maxRank + 1);
+            lblFinalRank.Text = $"{finalRank}위";
+        }
+
+        // 결과 저장 버튼 클릭
+        private void btnResult_Click(object sender, EventArgs e)
+        {
+            using (Bitmap bmp = new Bitmap(this.Width, this.Height))
+            {
+                this.DrawToBitmap(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height));
+
+                string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string filePath = Path.Combine(desktopPath, "시뮬레이션결과.png");
+
+                bmp.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+                MessageBox.Show("결과 화면이 바탕화면에 저장되었습니다.", "저장 완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         // 생존 전략 데이터 클래스
