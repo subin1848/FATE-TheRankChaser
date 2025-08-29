@@ -31,6 +31,10 @@ namespace RankChaser
 
         private void button1_Click(object sender, EventArgs e)
         {
+            // 입력 검증
+            if (!ValidateInputs())
+                return;
+
             UserData trainee = new UserData
             {
                 Name = tbUser.Text,   
@@ -45,6 +49,9 @@ namespace RankChaser
             // UserData 객체를 그대로 전달
             SaveHistory(trainee);
 
+            // 결과 폼 생성
+            var resultForm = new ResultForm(GetUserData());
+            resultForm.ShowDialog();
         }
 
         // 내역 저장 메서드
@@ -67,6 +74,91 @@ namespace RankChaser
             catch (Exception ex)
             {
                 MessageBox.Show($"알 수 없는 오류가 발생했습니다. \n{ex.Message}", "알 수 없는 오류!");
+            }
+        }
+
+        // 입력 검증 메서드
+        private bool ValidateInputs()
+        {
+            if (cbGender.SelectedIndex == -1)
+            {
+                MessageBox.Show("성별을 선택해주세요! 👤", "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (cbStrength.SelectedIndex == -1)
+            {
+                MessageBox.Show("강한 포지션을 선택해주세요! 💪", "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (cbWeakness.SelectedIndex == -1)
+            {
+                MessageBox.Show("약한 포지션을 선택해주세요! 😅", "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (cbStrength.SelectedIndex == cbWeakness.SelectedIndex)
+            {
+                MessageBox.Show("강한 포지션과 약한 포지션은 달라야 해요! 🤔", "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(tbpoint.Text))
+            {
+                MessageBox.Show("매력 포인트를 입력해주세요! ✨", "입력 오류", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
+        public List<StrategyData> LoadStrategyCsv(string path)
+        {
+            var list = new List<StrategyData>();
+
+            // 실행 파일 경로 기준으로 CSV 찾기
+            string fullPath = Path.Combine(Application.StartupPath, path);
+
+            foreach (var line in File.ReadAllLines(fullPath).Skip(1))
+            {
+                var parts = line.Split(',');
+
+                if (parts.Length < 8) continue; // 안전하게 8개 컬럼 이상인지 확인
+
+                list.Add(new StrategyData
+                {
+                    Score = parts[0],
+                    Character = parts[1],
+                    Strategies = $"{parts[2]}\r\n{parts[3]}\r\n{parts[4]}\r\n{parts[5]}\r\n{parts[6]}",
+                    Icons = parts[7]
+                });
+            }
+
+            return list;
+        }
+
+        // UserData 객체 생성 메서드
+        private UserData GetUserData()
+        {
+            return new UserData
+            {
+                Name = tbUser.Text,
+                BirthDate = dtBirth.Value,
+                Gender = cbGender.SelectedItem.ToString(),
+                StrongPosition = cbStrength.SelectedItem.ToString(),
+                WeakPosition = cbWeakness.SelectedItem.ToString(),
+                CharmPoint = tbpoint.Text,
+                SimulationDate = DateTime.Now
+            };
+        }
+
+        // 종료 메뉴 클릭 이벤트
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("정말 종료하시겠습니까? 🥺", "종료 확인", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                Application.Exit();
             }
         }
 
